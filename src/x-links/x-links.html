@@ -1,0 +1,39 @@
+<!-- Element -->
+<dom-module id="x-links">
+  <template>
+
+    <!-- CSS -->
+    <style>
+
+
+    </style>
+
+    <template is="dom-repeat" items="[[links]]" as="link">
+      <a href="[[link.page]]" class="shortcut" hidden$="[[!link.visible]]">
+        <paper-ripple></paper-ripple>
+        <img src="../../images/shortcuts/[[link.icon]].png">
+        <p>[[link.title]]</p>
+      </a>
+    </template>
+  <script>
+    (function () {
+      'use strict';
+      Polymer({
+
+        /**
+         * Element configuration (is, behaviors, properties, observers).
+         */
+        is: 'x-links',
+        properties: {
+          
+          links: {
+            type: Array,
+            notify: true
+          }
+
+        }
+
+      });
+    })();
+  </script>
+</dom-module>

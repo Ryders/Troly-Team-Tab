@@ -9,10 +9,10 @@
       :host { display: block; position: relative; }
 
       /* Wrapper */
-      div.wrapper {}
+      div.wrapper { max-width:1024px; margin:auto; position:relative; }
 
       /* Wrapper / Shortcuts */
-      div.wrapper div.block { @apply(--layout-horizontal); @apply(--layout-center-justified); @apply(--layout-wrap); font-size: 1.3em; }
+      div.wrapper div.block div { @apply(--layout-horizontal); @apply(--layout-center-justified); @apply(--layout-wrap); font-size: 1.3em; }
       div.wrapper div.block.wds { border-top: 1px solid var(--divider-color); margin: 18px auto auto auto; max-width: 1024px; padding: 18px 0 0 0; }
       div.wrapper div.block a.shortcut { border-radius: 3px; padding: 18px 0 0 0; position: relative; text-decoration: none; transition: .2s ease; width: 128px; }
       div.wrapper div.block a.shortcut:hover { background: var(--border-color); cursor: pointer; }
@@ -30,29 +30,32 @@
 
     <div class="wrapper">
 
-      <!-- G Suite Shortcuts -->
-      <div class="block">
-        <template is="dom-repeat" items="[[gSuiteShortcuts]]" as="shortcut">
-          <a href="[[shortcut.page]]" class="shortcut" hidden$="[[!shortcut.visible]]">
-            <paper-ripple></paper-ripple>
-            <img src="../../images/shortcuts/[[shortcut.icon]].png">
-            <p>[[shortcut.title]]</p>
-          </a>
-        </template>
-      </div>
+      <paper-tabs selected="{{tabDefaultSelection}}" scrollable>
+        <paper-tab>Getting Started</paper-tab>
+        <paper-tab>Internal Resources</paper-tab>
+        <paper-tab>Everyday Systems</paper-tab>
+        <paper-tab>Check your Chrome Setup</paper-tab>
+        <paper-tab>Troly CRM</paper-tab>
+      </paper-tabs>
 
-      <!-- WDS Domain Shortcuts -->
-      <template is="dom-if" if="[[showWdsDomain]]">
-        <div class="block wds">
-          <template is="dom-repeat" items="[[wdsDomainShortcuts]]" as="shortcut">
-            <a href="[[shortcut.page]]" class="shortcut" hidden$="[[!shortcut.visible]]">
-              <paper-ripple></paper-ripple>
-              <img src="../../images/shortcuts/[[shortcut.icon]].png">
-              <p>[[shortcut.title]]</p>
-            </a>
-          </template>
-        </div>
-      </template>
+      <div class="block">
+        <iron-pages selected="{{tabDefaultSelection}}">
+          <div>
+            <x-links links="{{gettingStartedShortcuts}}"></x-links>
+          </div>
+          <div>
+            <x-links links="{{internalShortcuts}}"></x-links>
+          </div>
+          <div>
+            <x-links links="{{extSystemsShortcuts}}"></x-links>
+          </div>
+          <div>
+            <x-links links="{{setupShortcuts}}"></x-links>
+          </div>
+          <div>soon</div>
+        </iron-pages>
+      </div>
+      
 
       <!-- Edit button -->
       <paper-button class="edit-button" on-tap="__openCustomizeDialog">
@@ -77,34 +80,21 @@
           /**
            * List of shortcuts on homepage.
            */
-          gSuiteShortCuts: {
+          gettingStartedShortcuts: {
             type: Array
           },
 
-          /**
-           * WDS apps visibility toggle.
-           */
-          showWdsDomain: {
-            type: Boolean
+          internalShortcuts: {
+            type: Array
           },
 
-          /**
-           * List of WDS apps.
-           */
-          wdsDomainShortcuts: {
-            type: Array,
-            value: function () {
-              return [
-                { type: 'web', icon: 'confluence', title: 'Confluence', page: 'https://confluence.wds.sk/', visible: true },
-                { type: 'web', icon: 'jira', title: 'JIRA', page: 'https://jira.wds.sk/', visible: true },
-                { type: 'web', icon: 'nextcloud', title: 'Nextcloud', page: 'https://nextcloud.wds.sk/', visible: true },
-                { type: 'web', icon: 'zabbix', title: 'Zabbix', page: 'https://monitor.wds.sk/zabbix', visible: true },
-                { type: 'web', icon: 'gitlab', title: 'Gitlab', page: 'https://gitlab.wds.sk/', visible: true },
-                { type: 'web', icon: 'kibana', title: 'Kibana', page: 'https://elk.wds.sk/', visible: true }
-              ]
-            }
-          }
+          extSystemsShortcuts: {
+            type: Array
+          },
 
+          setupShortcuts: {
+            type: Array
+          },
         },
 
         __openCustomizeDialog: function () {

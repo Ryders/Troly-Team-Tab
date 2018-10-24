@@ -9,8 +9,8 @@
       :host { color: var(--darker-gray-text-color); display: block; font-size: 1.3em; }
 
       /* Header */
-      header { @apply(--shadow-elevation-2dp); background: #EEE; border-bottom: 1px solid var(--border-color); margin: 0 0 12px 0; padding: 24px; }
-      header img { margin: 24px 0 0 0; max-width: 100%; }
+      header { background: #EEE; border-bottom: 1px solid var(--border-color); margin: 0 0 12px 0; padding: 24px; }
+      header img { filter: grayscale(100%); opacity: 0.5; margin: 24px 0 0 0; max-width: 100%; }
       header div.description { font-weight: 300; margin: 12px 0 0 0; text-align: center; }
       header a { color: var(--secondary-text-color); display: block; font-size: .7em; font-weight: 300; text-align: center; text-decoration: none; }
       header a:hover { text-decoration: underline; }
@@ -35,9 +35,9 @@
 
     <!-- Drawer header -->
     <header>
-      <img src="/images/logo.png">
-      <div class="description">New Tab Chrome Extension</div>
-      <a href="https://github.com/michalsukupcak/G-Suite-New-Tab">GitHub Repository</a>
+      <img src="/images/troly-logo-e91e63.png">
+      <div class="description">Our Team, Starts Here!</div>
+      <a href="https://troly-io.slack.com/messages/C4XCX9X6G">Request an update</a>
     </header>
 
     <!-- Drawer content -->
@@ -75,11 +75,11 @@
       <hr>
 
       <!-- Chrome tabs -->
-      <template is="dom-repeat" items="[[tabs]]" as="tab">
+      <template is="dom-repeat" items="[[links]]" as="link">
         <div on-tap="_openTab">
           <paper-ripple></paper-ripple>
-          <iron-icon icon="icons:[[tab.icon]]"></iron-icon>
-          <span>[[tab.title]]</span>
+          <iron-icon icon="icons:[[link.icon]]"></iron-icon>
+          <span>[[link.title]]</span>
         </div>
       </template>
 
@@ -93,10 +93,10 @@
       </div>
 
       <!-- About link -->
-      <div on-tap="_openAbout">
+      <!--div on-tap="_openAbout">
         <paper-ripple></paper-ripple>
         <span>About Chrome</span>
-      </div>
+      </div-->
 
       <!-- Help link -->
       <div on-tap="_openHelp">
@@ -121,7 +121,7 @@
           /**
            * List of chrome://.. tabs used in drawer and toolbar.
            */
-          tabs: {
+          links: {
             type: Array
           }
 
@@ -169,7 +169,7 @@
          * @private
          */
         _openTab: function (event) {
-          chrome.tabs.create({ url: 'chrome://' + event.model.tab.page });
+          chrome.tabs.create({ url: 'chrome://' + event.model.link.page });
         },
 
         /**
@@ -197,7 +197,7 @@
          * @private
          */
         _openHelp: function () {
-          chrome.tabs.create({ url: 'https://support.google.com/chrome' });
+          chrome.tabs.create({ url: 'https://troly-io.slack.com/messages/C4XCX9X6G' });
         }
 
       });

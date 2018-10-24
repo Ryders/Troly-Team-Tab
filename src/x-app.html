@@ -8,6 +8,7 @@
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../bower_components/iron-signals/iron-signals.html">
@@ -19,12 +20,14 @@
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="x-cards/x-bookmarks/x-bookmarks.html">
 <link rel="import" href="x-cards/x-bookmarks/x-bookmarks-folder.html">
@@ -32,6 +35,7 @@
 <link rel="import" href="x-cards/x-dashboard/x-dashboard.html">
 <link rel="import" href="x-cards/x-cards.html">
 <link rel="import" href="x-drawer/x-drawer.html">
+<link rel="import" href="x-links/x-links.html">
 <link rel="import" href="x-logo/x-logo.html">
 <link rel="import" href="x-shortcuts/x-shortcuts.html">
 <link rel="import" href="x-toolbar/x-toolbar.html">
@@ -50,8 +54,12 @@
         --light-gray-text-color: #AAA;
         --gray-text-color: #777;
         --darker-gray-text-color: #666;
-        --dark-gray-text-color: #333;
+        --dark-gray-text-color: #2f363a;
         --border-color: #CCC;
+        --troly-brand-color: #E91E63;
+        --paper-tab-ink: var(--border-color);
+        --paper-tabs-selection-bar-color: var(--troly-brand-color);
+
       }
 
       /* Element */
@@ -116,16 +124,15 @@
 
     </style>
 
-    <!-- ----------------------------------------------------------------------------------------------------------- -->
     <!-- App layout -->
 
     <!-- Wrapper -->
-    <app-drawer-layout force-narrow="[[!useFixedDrawer]]">
+    <app-drawer-layout force-narrow="[[!optsFixedDrawer]]">
 
       <!-- Drawer panel -->
-      <app-drawer slot="drawer" class$="[[_getDrawerClass(useFixedDrawer)]]" swipe-open="[[!useFixedDrawer]]" persistent="[[useFixedDrawer]]">
-        <x-drawer tabs="{{tabs}}"></x-drawer>
-      </app-drawer>
+      <!--app-drawer slot="drawer" class$="[[_getDrawerClass(optsFixedDrawer)]]" swipe-open="[[!optsFixedDrawer]]" persistent="[[optsFixedDrawer]]">
+        <x-drawer links="{{drawerShortcuts}}"></x-drawer>
+      </app-drawer-->
 
       <!-- Main panel -->
       <app-header-layout id="headerPanel">
@@ -135,7 +142,7 @@
           <app-toolbar id="toolbar">
 
             <!-- Drawer toggle button -->
-            <div hidden$="[[useFixedDrawer]]">
+            <div hidden$="[[optsFixedDrawer]]">
               <paper-icon-button icon="icons:menu" drawer-toggle></paper-icon-button>
             </div>
 
@@ -143,7 +150,7 @@
             <div main-title></div>
 
             <!-- Chrome:// controls -->
-            <x-toolbar tabs="{{tabs}}" on-open-customize-dialog="_openCustomizeDialog">
+            <x-toolbar links="{{browserShortcuts}}" on-open-customize-dialog="_openCustomizeDialog">
             </x-toolbar>
 
           </app-toolbar>
@@ -153,23 +160,22 @@
         <main id="content">
 
           <!-- Search bar -->
-          <template is="dom-if" if="[[showLogo]]">
-            <x-logo></x-logo>
-          </template>
+          <!--x-logo></x-logo-->
 
           <!-- Shortcuts -->
           <x-shortcuts
-            g-suite-shortcuts="{{gSuiteShortcuts}}"
-            show-wds-domain="{{showWdsDomain}}"
-            on-open-customize-dialog="_openCustomizeDialog">
+            getting-started-shortcuts="{{gettingStartedShortcuts}}"
+            on-open-customize-dialog="_openCustomizeDialog" 
+            on-reset-all-extension-data="_openCustomizeDialog"
+            >
           </x-shortcuts>
 
           <!-- Cards -->
-          <x-cards
+          <!--x-cards
             show-bookmarks-card="[[showBookmarksCard]]"
             show-dashboard-card="[[showDashboardCard]]"
-            use-flat-style="[[useFlatStyle]]">
-          </x-cards>
+            use-flat-style="false">
+          </x-cards-->
 
         </main>
 
@@ -184,48 +190,50 @@
     <paper-dialog id="customizeDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" modal>
 
       <!-- Title -->
-      <h2>Customization</h2>
+      <h2>Customisation</h2>
 
       <!-- Content -->
       <paper-dialog-scrollable>
 
         <!-- Description -->
-        <div class="description">Customize settings of the extension to match your needs and preferences.</div>
+        <div class="description">Customize settings of the extension to match your role, needs and preferences.</div>
 
         <!-- Search box -->
-        <h3>Google logo</h3>
-        <paper-checkbox checked="{{showLogo}}">Show Google logo.</paper-checkbox>
+        <h3>Selected Tab</h3>
+        <paper-checkbox checked="{{optsDefaultTabAuto}}">Show the last opened tab at startup</paper-checkbox>
+        <paper-dropdown-menu label="Tab to be displayed at launch.">
+          <paper-listbox name="{{optsDefaultTab}}" slot="dropdown-content" enabled="{{!optsDefaultTabAuto}}" required="{{!optsDefaultTabAuto}}">
+            <paper-item>Getting Started</paper-item>
+            <paper-item>Internal Resources</paper-item>
+            <paper-item>Everyday Systems</paper-item>
+            <paper-item>Check your Chrome Setup</paper-item>
+            <paper-item>Troly CRM</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
 
         <!-- Search box -->
-        <h3>WDS.sk domain apps</h3>
-        <paper-checkbox checked="{{showWdsDomain}}">Show apps specific to @wds.sk domain.</paper-checkbox>
-        <p>Unless you have a G Suite account for domain @wds.sk, you will want to turn this setting <strong>off</strong> as you won't be able to access these apps.</p>
-
-        <!-- Search box -->
-        <h3>Menu drawer</h3>
-        <paper-checkbox checked="{{useFixedDrawer}}">Set menu drawer to always visible.</paper-checkbox>
-
-        <!-- Search box -->
-        <h3>Cards</h3>
-        <paper-checkbox checked="{{useFlatStyle}}">Use flat style for Dashboard and Bookmarks cards</paper-checkbox>
-        <paper-checkbox checked="{{showDashboardCard}}">Show Dashboard card</paper-checkbox>
-        <paper-checkbox checked="{{showBookmarksCard}}">Show Bookmarks card</paper-checkbox>
-
-        <!-- Tabs buttons -->
-        <h3>Chrome tabs:</h3>
+        <h3>Roles-based options</h3>
+        <p>Select the roles for which you want to access tools and links.</p>
         <div class="columns">
-          <template is="dom-repeat" items="{{tabs}}" as="tab">
-            <paper-checkbox checked="{{tab.visible}}">[[tab.title]]</paper-checkbox>
-          </template>
+          <paper-checkbox checked="{{roleMarketing}}">Marketing</paper-checkbox>
+          <paper-checkbox checked="{{roleBusDev}}">Business Development</paper-checkbox>
+          <paper-checkbox checked="{{roleCustSupp}}">Frontline Support</paper-checkbox>
+          <paper-checkbox checked="{{roleCustInvestig}}">Technical Support</paper-checkbox>
+          <paper-checkbox checked="{{roleCustOnboard}}">Customer On-boarding</paper-checkbox>
+          <paper-checkbox checked="{{roleCustWebsites}}">Websites Support</paper-checkbox>
+          <paper-checkbox checked="{{roleProdDev}}">Product Development</paper-checkbox>
+          <paper-checkbox checked="{{roleManagement}}">Management</paper-checkbox>
         </div>
+        
+        <!-- Search box -->
+        <h3>Left drawer access</h3>
+        <paper-checkbox checked="{{optsFixedDrawer}}">Menu drawer should be always visible.</paper-checkbox>
 
-        <!-- Shortcuts -->
-        <h3>Shortcuts:</h3>
-        <div class="columns">
-          <template is="dom-repeat" items="{{gSuiteShortcuts}}" as="shortcut">
-            <paper-checkbox checked="{{shortcut.visible}}">[[shortcut.title]]</paper-checkbox>
-          </template>
-        </div>
+        <!-- Search box -->
+        <h3>Select Cards to use</h3>
+        <paper-checkbox checked="{{optsShowAsanaCard}}">Asana card</paper-checkbox>
+        <paper-checkbox checked="{{optsShowDashboardCard}}">Dashboard card</paper-checkbox>
+        <paper-checkbox checked="{{optsShowBookmarksCard}}">Bookmarks card</paper-checkbox>
 
       </paper-dialog-scrollable>
 
@@ -243,12 +251,11 @@
     <paper-dialog id="changelog" modal>
       <h2>What's New</h2>
       <paper-dialog-scrollable>
-        G Suite New Tab extension just got updated! Highlights:<br>
+        Welcome to the Troly Starts Here! new tab extension. This is our first release and here you will find:<br>
         <br>
-        * [New] Ability to toggle visibility of Dashboard and Bookmarks cards from extension settings.<br>
+        * [New] Ability to access Internal Team Resources as well as Online Systems we use.<br>
         <br>
-        Full changelog: <a href="https://chrome.google.com/webstore/detail/g-suite-new-tab/ehpgcagmhpndkmglombjndkdmggkgnge">Webstore</a><br>
-        Source code: <a href="https://github.com/michalsukupcak/G-Suite-New-Tab" target="_blank">Github</a><br>
+        Full changelog: <a href="https://chrome.google.com/webstore/detail/g-suite-new-tab/ehpgcagmhpndkmglombjndkdmggkgnge">Webstore</a>
       </paper-dialog-scrollable>
       <div class="buttons">
        <paper-button dialog-dismiss>Close</paper-button>
@@ -267,14 +274,32 @@
     </iron-signals>
 
     <!-- Browser local storage -->
-    <iron-localstorage name="__gsuitenewtab_gsuiteshortcuts" value="{{gSuiteShortcuts}}"></iron-localstorage>
-    <iron-localstorage name="__gsuitenewtab_showbookmarkscard" value="{{showBookmarksCard}}"></iron-localstorage>
-    <iron-localstorage name="__gsuitenewtab_showdashboardcard" value="{{showDashboardCard}}"></iron-localstorage>
-    <iron-localstorage name="__gsuitenewtab_showlogo" value="{{showLogo}}"></iron-localstorage>
-    <iron-localstorage name="__gsuitenewtab_showwdsdomain" value="{{showWdsDomain}}"></iron-localstorage>
-    <iron-localstorage name="__gsuitenewtab_tabs" value="{{tabs}}"></iron-localstorage>
-    <iron-localstorage name="__gsuitenewtab_usefixeddrawer" value="{{useFixedDrawer}}"></iron-localstorage>
-    <iron-localstorage name="__gsuitenewtab_useflatstyle" value="{{useFlatStyle}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_tabDefaultSelection"     value="{{tabDefaultSelection}}"></iron-localstorage>
+
+    <iron-localstorage name="__trolystartshere_roleBusDevelopment"      value="{{roleBusDev}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_roleMarketing"           value="{{roleMarketing}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_roleProdDevelopment"     value="{{roleProdDev}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_roleCustSupport"         value="{{roleCustSupp}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_roleCustInvestigations"  value="{{roleCustInvestig}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_roleCustOnboarding"      value="{{roleCustOnboard}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_roleCustWebsites"        value="{{roleCustWebsites}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_roleManagement"          value="{{roleManagement}}"></iron-localstorage>
+
+    <iron-localstorage name="__trolystartshere_browserShortcuts"        value="{{browserShortcuts}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_drawerShortcuts"         value="{{drawerShortcuts}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_gettingStartedShortcuts" value="{{gettingStartedShortcuts}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_internalShortcuts"       value="{{internalShortcuts}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_extSystemsShortcuts"     value="{{extSystemsShortcuts}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_setupShortcuts"          value="{{setupShortcuts}}"></iron-localstorage>
+
+    <iron-localstorage name="__trolystartshere_optsFixedDrawer"         value="{{optsFixedDrawer}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_optsDefaultTabAuto"      value="{{optsDefaultTabAuto}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_optsDefaultTab"          value="{{optsDefaultTab}}"></iron-localstorage>
+
+    <iron-localstorage name="__trolystartshere_optsShowAsanaCard"       value="{{optsShowAsanaCard}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_optsShowDashboardCard"   value="{{optsShowDashboardCard}}"></iron-localstorage>
+    <iron-localstorage name="__trolystartshere_optsShowBookmarksCard"   value="{{optsShowBookmarksCard}}"></iron-localstorage>
+
 
   </template>
   <script>
@@ -293,34 +318,36 @@
            */
           APP_VERSION: {
             type: Number,
-            value: 20
+            value: 1
           },
 
           /**
            * List of G Suite app shortcuts.
            */
-          gSuiteShortcuts: {
+          browserShortcuts: {
             type: Array
           },
 
-          /**
-           * Search box visibility toggle.
-           */
-          showLogo: {
-            type: Boolean
-          },
-
+    
           /**
            * WDS apps visibility toggle.
            */
-          showWdsDomain: {
+          drawerShortcuts: {
             type: Boolean
           },
 
           /**
            * List of chrome://.. tabs used in drawer and toolbar.
            */
-          tabs: {
+          gettingStartedShortcuts: {
+            type: Array
+          },
+
+          extSystemsShortcuts: {
+            type: Array
+          },
+
+          setupShortcuts: {
             type: Array
           },
 
@@ -332,25 +359,35 @@
             value: false
           },
 
-          /**
-           * Enable flat style for Dashboard and Bookmarks cards.
-           */
-          useFlatStyle: {
-            type: Boolean,
-            value: true
-          }
-
         },
+
+
         observers: [
           '_setDefaultValues(' +
-            'gSuiteShortcuts,' +
-            'showBookmarksCard,' +
-            'showDashboardCard,' +
-            'showLogo,' +
-            'showWdsDomain,' +
-            'tabs,' +
-            'useFixedDrawer,' +
-            'useFlatStyle' +
+            'tabDefaultSelection,' +
+
+            'roleBusDev,' +
+            'roleMarketing,' +
+            'roleProdDev,' +
+            'roleCustSupp,' +
+            'roleCustInvestig,' +
+            'roleCustOnboard,' +
+            'roleManagement,' +
+
+            'browserShortcuts,' +
+            'drawerShortcuts,' +
+            'gettingStartedShortcuts,' +
+            'internalShortcuts,' +
+            'extSystemsShortcuts,' +
+            'setupShortcuts,' +
+
+            'optsFixedDrawer,' +
+            'optsDefaultTabAuto,' +
+            'optsDefaultTab,' +
+
+            'optsShowAsanaCard,' +
+            'optsShowDashboardCard,' +
+            'optsShowBookmarksCard' +
           ')'
         ],
 
@@ -363,31 +400,11 @@
         ready: function () {
 
           // Reset extension if new version is detected
-          var version = '__gsuitenewtab_version_check_' + this.APP_VERSION;
+          var version = '__trolystartshere_version_check_' + this.APP_VERSION;
           if (!window.localStorage.getItem(version)) {
 
             // Save new version item
             window.localStorage.setItem(version, true);
-
-            // Update script
-            var gSuiteShortcutsString = window.localStorage.getItem('__gsuitenewtab_gsuiteshortcuts');
-            if (gSuiteShortcutsString) {
-              // var groupsExists = false;
-              // var cloudConsoleExists = false;
-              var gSuiteShortcuts = JSON.parse(gSuiteShortcutsString);
-              gSuiteShortcuts.forEach(function (gSuiteShortcut) {
-                if (gSuiteShortcut.title === 'Groups') {
-                  gSuiteShortcut.page = 'https://groups.google.com/'
-                }
-              });
-              // if (groupsExists) {
-              //   gSuiteShortcuts.splice(6, 0, { type: 'web', icon: 'analytics', title: 'Analytics', page: 'https://analytics.google.com/analytics/web', visible: true });
-              // }
-              // if (!cloudConsoleExists) {
-              //   gSuiteShortcuts.splice(10, 0, { type: 'web', icon: 'cloud-console', title: 'Cloud Console', page: 'https://console.cloud.google.com/', visible: true });
-              // }
-              window.localStorage.setItem('__gsuitenewtab_gsuiteshortcuts', gSuiteShortcuts);
-            }
 
             // Open changelog
             this.$.changelog.open();
@@ -445,82 +462,104 @@
         /**
          * Observer for default configuration values.
          *
-         * @param gSuiteShortcuts
-         * @param showBookmarksCard
-         * @param showDashboardCard
-         * @param showLogo
-         * @param showWdsDomain
-         * @param tabs
-         * @param useFixedDrawer
-         * @param useFlatStyle
+         * @param tabDefaultSelection
+
+         * @param roleBusDev
+         * @param roleMarketing
+         * @param roleProdDev
+         * @param roleCustSupp
+         * @param roleCustInvestig
+         * @param roleCustOnboard
+         * @param roleCustWebsites
+         * @param roleManagement
+
+         * @param browserShortcuts
+         * @param drawerShortcuts
+         * @param gettingStartedShortcuts
+         * @param internalShortcuts
+         * @param extSystemsShortcuts
+         * @param setupShortcuts
+
+         * @param optsFixedDrawer
+         * @param optsDefaultTabAuto
+         * @param optsDefaultTab
+
+         * @param optsShowAsanaCard
+         * @param optsShowDashboardCard
+         * @param optsShowBookmarksCard
          * @private
          */
         _setDefaultValues: function (
-            gSuiteShortcuts,
-            showBookmarksCard,
-            showDashboardCard,
-            showLogo,
-            showWdsDomain,
-            tabs,
-            useFixedDrawer,
-            useFlatStyle
+            
+            tabDefaultSelection,
+
+            roleBusDev,
+            roleMarketing,
+            roleProdDev,
+            roleCustSupp,
+            roleCustInvestig,
+            roleCustOnboard,
+            roleCustWebsites,
+            roleManagement,
+
+            browserShortcuts,
+            drawerShortcuts,
+            gettingStartedShortcuts,
+            internalShortcuts,
+            extSystemsShortcuts,
+            setupShortcuts,
+
+            optsFixedDrawer,
+            optsDefaultTabAuto,
+            optsDefaultTab,
+
+            optsShowAsanaCard,
+            optsShowDashboardCard,
+            optsShowBookmarksCard
+
         ) {
           this.debounce('_setDefaultValues', function () {
-            if (!gSuiteShortcuts) {
 
-              // Create initial gSuite apps (if empty)
-              this.set('gSuiteShortcuts', [
-                { type: 'web', icon: 'admin', title: 'Admin', page: 'https://admin.google.com/AdminHome', visible: true },
-                { type: 'web', icon: 'chat', title: 'Chat', page: 'https://chat.google.com', visible: true },
-                { type: 'web', icon: 'meet', title: 'Meet', page: 'https://meet.google.com', visible: true },
-                { type: 'web', icon: 'hangouts', title: 'Hangouts', page: 'https://hangouts.google.com', visible: true },
-                { type: 'web', icon: 'drive', title: 'Drive', page: 'https://drive.google.com/drive/my-drive', visible: true },
-                { type: 'web', icon: 'keep', title: 'Keep', page: 'https://keep.google.com/', visible: true },
-                { type: 'web', icon: 'analytics', title: 'Analytics', page: 'https://analytics.google.com/analytics/web', visible: true },
-                { type: 'web', icon: 'firebase', title: 'Firebase', page: 'https://console.firebase.google.com/', visible: true },
-                { type: 'web', icon: 'jamboard', title: 'Jamboard', page: 'https://jamboard.google.com/', visible: true },
-                { type: 'web', icon: 'gallery', title: 'Gallery.io', page: 'https://gallery.io/', visible: true },
-                { type: 'web', icon: 'cloud-console', title: 'Cloud Console', page: 'https://console.cloud.google.com/', visible: true },
-                { type: 'web', icon: 'calendar', title: 'Calendar', page: 'https://calendar.google.com/calendar/render', visible: true },
-                { type: 'web', icon: 'inbox', title: 'Inbox', page: 'https://inbox.google.com', visible: true },
-                { type: 'web', icon: 'cloud', title: 'Cloud Search', page: 'https://cloudsearch.google.com/cloudsearch', visible: true },
-                { type: 'web', icon: 'my-account', title: 'My Account', page: 'https://myaccount.google.com/', visible: true },
-                { type: 'web', icon: 'groups', title: 'Groups', page: 'https://groups.google.com/', visible: true },
-                { type: 'web', icon: 'contacts', title: 'Contacts', page: 'https://contacts.google.com', visible: true },
-                { type: 'web', icon: 'gmail', title: 'Gmail', page: 'https://mail.google.com/mail/u/0/#inbox', visible: true },
-                { type: 'web', icon: 'plus', title: 'Google+', page: 'https://plus.google.com/', visible: true },
-                { type: 'web', icon: 'play-console', title: 'Play Console', page: 'https://play.google.com/apps/publish', visible: true }
-              ]);
+            if (tabDefaultSelection === null) {
+
             }
 
-            // Bookmarks card is visible by default
-            if (showBookmarksCard === null) {
-              this.set('showBookmarksCard', true);
+            if (roleBusDev === null) {
+              this.set('roleBusDev', true);
             }
 
-            // Dashboard card is visible by default
-            if (showDashboardCard === null) {
-              this.set('showDashboardCard', true);
+            if (roleMarketing === null) {
+              this.set('roleMarketing', true);
             }
 
-            // Logo is visible by default
-            if (showLogo === null) {
-              this.set('showLogo', true);
+            if (roleProdDev === null) {
+              this.set('roleProdDev', true);
             }
 
-            // Logo is visible by default
-            if (showLogo === null) {
-              this.set('showLogo', true);
+            if (roleCustSupp === null) {
+              this.set('roleCustSupp', true); 
             }
 
-            // WDS domain apps are visible by default
-            if (showWdsDomain === null) {
-              this.set('showWdsDomain', false);
+            if (roleCustInvestig === null) {
+              this.set('roleCustInvestig', true); 
             }
 
-            // Create initial tabs config (if empty)
-            if (!tabs) {
-              this.set('tabs', [
+            if (roleCustOnboard === null) {
+              this.set('roleCustOnboard', true); 
+            }
+
+            if (roleCustWebsites === null) {
+              this.set('roleCustWebsites', true); 
+            }
+
+            if (roleManagement === null) {
+              this.set('roleManagement', true); 
+            }
+
+            if (browserShortcuts === null) {
+
+              // Create initial Getting Started apps (if empty)
+              this.set('browserShortcuts', [
                 { page: 'apps', icon: 'icons:apps', title: 'Apps', visible: true },
                 { page: 'bookmarks', icon: 'icons:star', title: 'Bookmarks', visible: true },
                 { page: 'downloads', icon: 'icons:file-download', title: 'Downloads', visible: true },
@@ -530,15 +569,135 @@
               ]);
             }
 
-            // Drawer is swipe-able by default
-            if (useFixedDrawer === null) {
-              this.set('useFixedDrawer', false);
+            if (drawerShortcuts) {
+
+              this.set('drawerShortcuts', [
+                {}
+              ]);
             }
 
-            // Flat style is disabled by default
-            if (useFlatStyle === null) {
-              this.set('useFlatStyle', false);
+            if (gettingStartedShortcuts) {
+
+              this.set('gettingStartedShortcuts', [
+                
+              ]);
             }
+
+            if (internalShortcuts === null) {
+
+              // Create initial Getting Started apps (if empty)
+              this.set('internalShortcuts', [
+                { type: 'goog', icon: 'admin',      title: 'Admin', page: 'https://admin.google.com/AdminHome',               roles: ['management'] },
+                { type: 'goog', icon: 'meet',       title: 'Meet', page: 'https://meet.google.com',                           roles: ['all'] },
+                { type: 'goog', icon: 'drive',      title: 'Drive', page: 'https://drive.google.com/drive/my-drive',          roles: ['all'] },
+                { type: 'goog', icon: 'analytics',  title: 'Analytics', page: 'https://analytics.google.com/analytics/web',   roles: ['marketing','management'] },
+                { type: 'goog', icon: 'calendar',   title: 'Calendar', page: 'https://calendar.google.com/calendar/render',   roles: ['all'] },
+                { type: 'goog', icon: 'my-account', title: 'My Account', page: 'https://myaccount.google.com/',               roles: ['all'] },
+                { type: 'goog', icon: 'groups',     title: 'Groups', page: 'https://groups.google.com/',                      roles: ['management'] },
+                { type: 'goog', icon: 'contacts',   title: 'Contacts', page: 'https://contacts.google.com',                   roles: ['all'] },
+                { type: 'goog', icon: 'gmail',      title: 'Gmail', page: 'https://mail.google.com/mail/u/0/#inbox',          roles: ['all'] },
+                { type: 'goog', icon: 'play-console', title: 'Play Console', page: 'https://play.google.com/apps/publish',    roles: ['proddev'] }
+              ]);
+            }
+
+            if (extSystemsShortcuts) {
+
+              this.set('extSystemsShortcuts', [
+                { icon:'ext-ac',        title: 'Active Campaign', page: 'https://troly.activehosted.com', roles:['ruleBusDev','roleMarketing']},
+                { icon:'ext-aha',       title: 'Aha',         page: '',        roles:['roleManagement','roleProdDev']},
+                { icon:'ext-toky',      title: 'Toky',        page: '',        roles:['ruleBusDev','roleCustSupp']},
+                { icon:'ext-asana',     title: 'Asana',       page: '',        roles:['all']},
+                { icon:'ext-everhour',  title: 'Everhour',    page: '',        roles:['all']},
+                { icon:'ext-github',    title: 'GitHub',      page: '',        roles:['roleProdDev']},
+                { icon:'ext-slack',     title: 'Slack',       page: '',        roles:['all']},
+                { icon:'ext-kayako',    title: 'Kayako',      page: '',        roles:['roleCustSupp','roleCustInvestig']},
+                { icon:'ext-zapier',    title: 'Zapier',      page: '',        roles:['roleMarketing','roleCustInvestig','roleManagement']},
+                { icon:'ext-ycbm',      title: 'YouCanBookMe', page: '',       roles:['roleManagement']},
+                { icon:'ext-1password', title: '1Password',   page: '',        roles:['all']},
+                { icon:'ext-web',       title: 'Troly Website', page: '',      roles:['roleMarketing']},
+                { icon:'ext-kb',        title: 'Troly KB',    page: '',        roles:['roleCustSupp']},
+                { icon:'ext-cflare',    title: 'Cloudflare',  page: '',        roles:['roleProdDev']},
+                { icon:'ext-cdinary',   title: 'Cloudinary',  page: '',        roles:['roleProdDev']},
+                { icon:'ext-wistia',    title: 'Wistia',      page: '',        roles:['roleMarketing']}
+
+              ]);
+            }
+
+            if (setupShortcuts) {
+
+              this.set('setupShortcuts', [
+                { type:'req', icon:'ext-everhour',        title: 'Everhour',            page: '', roles:['all']},
+                { type:'req', icon:'ext-grammarly',       title: 'Grammarly',           page: '', roles:['all']},
+                { type:'req', icon:'ext-1pass',           title: '1Pass',               page: '', roles:['all']},
+                { type:'req', icon:'ext-asana',           title: 'Asana',               page: '', roles:['all']},
+                { type:'opt', icon:'ext-susp',            title: 'Tab Suspender',       page: '', roles:['all']},
+                { type:'opt', icon:'ext-offline',         title: 'Offline Docs',        page: '', roles:['all']},
+                { type:'opt', icon:'ext-rightinbox',      title: 'Right Inbox',         page: '', roles:['roleManagement','roleBusDev']},
+                { type:'opt', icon:'ext-ua-switch',       title: 'User-Agent Switcher', page: '', roles:['roleProdDev']},
+                { type:'opt', icon:'ext-window-resizer',  title: 'Window Resizer',      page: '', roles:['roleProdDev','roleMarketing']},
+                { type:'opt', icon:'ext-fold-viewer',     title: 'Fold Viewer',         page: '', roles:['roleProdDev','roleMarketing']},
+                { type:'req', icon:'ext-troly',           title: 'Troly Starts Here',   page: '', roles:['all']},
+                { type:'req', icon:'ext-apps-docs',       title: 'Google Docs',         page: '', roles:['all']},
+                { type:'req', icon:'ext-apps-sheets',     title: 'Google Sheets',       page: '', roles:['all']},
+                { type:'req', icon:'ext-apps-slides',     title: 'Google Slides',       page: '', roles:['all']},
+                { type:'req', icon:'ext-apps-drive',      title: 'Google Drive',        page: '', roles:['all']},
+                { type:'req', icon:'ext-apps-offline',    title: 'Gmail Offline',       page: '', roles:['roleManagement','roleBusDev']}
+              ]);
+            }
+
+
+            if (!gettingStartedShortcuts) {
+
+              // Create initial Getting Started apps (if empty)
+              this.set('gettingStartedShortcuts', [
+                { type: 'internal', icon:'slides',        title: 'Welcome to Troly!',             page: '', roles:['all']},
+                { type: 'internal', icon:'drawing',       title: 'Troly Org Chart',               page: '', roles:['all']},
+                { type: 'internal', icon:'document',      title: 'Defining the Troly Brand',      page: '', roles:['all']},
+                { type: 'internal', icon:'drawing',       title: 'Troly Team Bible',              page: '', roles:['all']},
+                { type: 'internal', icon:'drawing',       title: 'Troly in Charts',               page: '', roles:['all']},
+                { type: 'internal', icon:'document',      title: 'Active Campaign Configuration', page: '', roles:['all']},
+                { type: 'internal', icon:'document',      title: 'Aha Configuration',             page: '', roles:['all']},
+                { type: 'internal', icon:'document',      title: 'Zapier Configuration',          page: '', roles:['all']},
+                { type: 'internal', icon:'document',      title: 'Defining the Troly Brand',      page: '', roles:['all']},
+                { type: 'internal', icon:'link',          title: 'Timezone Helper',               page: '', roles:['all']},
+                { type: 'internal', icon:'link',          title: 'Email Signature Generator',     page: '', roles:['all']},
+                { type: 'customer', icon:'form',          title: 'Notes for Customer Meeting',    page: '', roles:['all']},
+                { type: 'customer', icon:'form',          title: 'Damage Parcel Claim Form',      page: '', roles:['all']},
+                { type: 'customer', icon:'sheets',        title: 'Hosting Accounts Details',      page: '', roles:['all']}
+              ]);
+            }
+
+
+            // Drawer is swipe-able by default
+            if (optsFixedDrawer === null) {
+              this.set('optsFixedDrawer', false);
+            }
+
+            //
+            if (optsDefaultTabAuto === null) {
+              this.set('optsDefaultTabAuto', true);
+            }
+
+            // 
+            if (optsDefaultTab === null) {
+              this.set('optsDefaultTab', '');
+            }
+
+            // Asana Tasks Card is shown by default
+            if (optsShowAsanaCard === null) {
+              this.set('optsShowAsanaCard', true);
+            }
+
+            // Dashboard Card is shown by default
+            if (optsShowDashboardCard === null) {
+              this.set('optsShowDashboardCard', true);
+            }
+
+            // Browser Bookmarks Card show by default
+            if (optsShowBookmarksCard === null) {
+              this.set('optsShowBookmarksCard', false);
+            }
+
 
           });
         }

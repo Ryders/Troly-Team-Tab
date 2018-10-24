@@ -54,12 +54,12 @@
     </style>
 
     <!-- Chrome tabs -->
-    <template is="dom-repeat" items="[[tabs]]" as="tab">
-      <span hidden$="[[!tab.visible]]">
+    <template is="dom-repeat" items="[[links]]" as="link">
+      <span hidden$="[[!link.visible]]">
         <div on-tap="_openTab">
           <paper-ripple></paper-ripple>
-          <iron-icon icon="icons:[[tab.icon]]"></iron-icon>
-          <span>[[tab.title]]</span>
+          <iron-icon icon="icons:[[link.icon]]"></iron-icon>
+          <span>[[link.title]]</span>
         </div>
       </span>
     </template>
@@ -69,6 +69,7 @@
       <paper-icon-button icon="icons:more-vert" slot="dropdown-trigger"></paper-icon-button>
       <paper-listbox slot="dropdown-content">
         <paper-item on-tap="_openCustomizeDialog">Customize Extension</paper-item>
+        <paper-item on-tap="_resetAllExtData">Reset Extension</paper-item>
       </paper-listbox>
     </paper-menu-button>
 
@@ -87,7 +88,7 @@
           /**
            * List of chrome://.. tabs used in drawer and toolbar.
            */
-          tabs: {
+          links: {
             type: Array,
             notify: true
           }
@@ -100,7 +101,7 @@
          * @private
          */
         _openTab: function (event) {
-          chrome.tabs.create({ url: 'chrome://' + event.model.tab.page });
+          chrome.tabs.create({ url: 'chrome://' + event.model.link.page });
         },
 
         /**
@@ -110,6 +111,10 @@
          */
         _openCustomizeDialog: function () {
           this.dispatchEvent(new Event('open-customize-dialog'));
+        },
+
+        _resetAllExtData: function () {
+          this.dispatchEvent(new Event('reset-all-extension-data'));
         }
 
       });

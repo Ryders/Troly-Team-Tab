@@ -1,12 +1,13 @@
 {
   "manifest_version": 2,
-  "version": "2.4.0",
-  "name": "G Suite New Tab",
+  "version": "2.4.0.1",
+  "name": "Troly Starts Here",
+  "description": "Allows team members to access everyday tools and systems used by Troly to make a difference in the world of small production wine.",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "icons": {
-    "16": "images/g-suite-icon-16.png",
-    "48": "images/g-suite-icon-48.png",
-    "128": "images/g-suite-icon-128.png"
+    "16": "images/troly-icon-16.png",
+    "48": "images/troly-icon-48.png",
+    "128": "images/troly-icon-128.png"
   },
   "chrome_url_overrides": {
     "newtab": "index.vulcanized.html"
